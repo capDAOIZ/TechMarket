@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-techjobs}
+      POSTGRES_USER: ${POSTGRES_USER:-techjobs}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-techjobs}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U techjobs -d techjobs"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  migrate:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://techjobs:techjobs@postgres:5432/techjobs}
+      DATA_LAKE_ROOT: /app/data-lake
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+    volumes:
+      - ../data-lake:/app/data-lake
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: alembic -c apps/api/alembic.ini upgrade head
+
+  seed:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://techjobs:techjobs@postgres:5432/techjobs}
+      DATA_LAKE_ROOT: /app/data-lake
+      LOAD_SEED: ${LOAD_SEED:-true}
+    volumes:
+      - ../data-lake:/app/data-lake
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: >-
+      sh -c 'if [ "$${LOAD_SEED}" = "true" ]; then
+      python data-platform/scripts/run_pipeline.py --seed;
+      else echo "Seed disabled"; fi'
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://techjobs:techjobs@postgres:5432/techjobs}
+      DATA_LAKE_ROOT: /app/data-lake
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:3000}
+      EXTERNAL_REQUEST_TIMEOUT_SECONDS: ${EXTERNAL_REQUEST_TIMEOUT_SECONDS:-30}
+      EXTERNAL_REQUEST_MAX_RETRIES: ${EXTERNAL_REQUEST_MAX_RETRIES:-3}
+      EXTERNAL_REQUEST_BACKOFF_SECONDS: ${EXTERNAL_REQUEST_BACKOFF_SECONDS:-1}
+      EXTERNAL_REQUEST_DELAY_SECONDS: ${EXTERNAL_REQUEST_DELAY_SECONDS:-0.1}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../data-lake:/app/data-lake
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+volumes:
+  postgres_data:

@@ -1,0 +1,35 @@
+services:
+  migrate:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+    command: alembic -c apps/api/alembic.ini upgrade head
+    restart: "no"
+
+  api:
+    build:
+      context: ..
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL is required}
+      DATA_LAKE_ROOT: ${DATA_LAKE_ROOT:-/app/data-lake}
+      CORS_ORIGINS: ${CORS_ORIGINS:?CORS_ORIGINS is required}
+      EXTERNAL_REQUEST_TIMEOUT_SECONDS: ${EXTERNAL_REQUEST_TIMEOUT_SECONDS:-30}
+      EXTERNAL_REQUEST_MAX_RETRIES: ${EXTERNAL_REQUEST_MAX_RETRIES:-3}
+      EXTERNAL_REQUEST_BACKOFF_SECONDS: ${EXTERNAL_REQUEST_BACKOFF_SECONDS:-1}
+      EXTERNAL_REQUEST_DELAY_SECONDS: ${EXTERNAL_REQUEST_DELAY_SECONDS:-0.1}
+    ports:
+      - "8000:8000"
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
