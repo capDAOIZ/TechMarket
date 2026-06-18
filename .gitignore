@@ -2,29 +2,35 @@
 node_modules/
 .pnp
 .pnp.js
+.venv/
+__pycache__/
+*.py[cod]
 
-# Build outputs
+# Build and tool outputs
 dist/
 dist-ssr/
 build/
+.pytest_cache/
+.ruff_cache/
+.vite/
+*.tsbuildinfo
 
 # Environment files
 .env
 .env.local
 .env.*.local
 
-# Editor / OS
+# Data lake generated data
+data-lake/raw/**
+data-lake/processed/**
+data-lake/curated/**
+!data-lake/**/.gitkeep
+
+# Editor, OS and logs
 .DS_Store
 Thumbs.db
 .vscode/
 .idea/
-
-# Logs
 *.log
 npm-debug.log*
 
-# TypeScript
-*.tsbuildinfo
-
-# Vite
-.vite/

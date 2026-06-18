@@ -1,0 +1,35 @@
+name: Daily ingestion
+
+on:
+  schedule:
+    - cron: "17 4 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: daily-ingestion
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      DATA_LAKE_ROOT: data-lake
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Require managed PostgreSQL secret
+        run: test -n "$DATABASE_URL"
+      - run: pip install .
+      - run: alembic -c apps/api/alembic.ini upgrade head
+      - run: python data-platform/scripts/run_pipeline.py --sources arbeitnow remotive greenhouse
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: data-lake-${{ github.run_id }}
+          path: data-lake/
+          retention-days: 30
+
