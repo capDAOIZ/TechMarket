@@ -153,9 +153,9 @@ def classify_seniority(title: str) -> str | None:
     patterns = (
         ("intern", r"\b(intern|internship|trainee)\b"),
         ("junior", r"\b(junior|jr\.?|entry[ -]level|graduate)\b"),
-        ("lead", r"\b(lead|principal|staff|architect|head)\b"),
-        ("senior", r"\b(senior|sr\.?)\b"),
-        ("manager", r"\b(manager|director|vp|vice president)\b"),
+        ("manager", r"\b(manager|director|head|vp|vice president)\b"),
+        ("lead", r"\blead\b"),
+        ("senior", r"\b(senior|sr\.?|staff|principal)\b"),
     )
     return next((label for label, pattern in patterns if re.search(pattern, value)), None)
 

@@ -12,7 +12,7 @@ const SENIORITY_OPTIONS: { value: Seniority | ""; label: string }[] = [
   { value: "intern", label: "Intern" },
   { value: "junior", label: "Junior" },
   { value: "senior", label: "Senior" },
-  { value: "lead", label: "Lead / Staff" },
+  { value: "lead", label: "Lead" },
   { value: "manager", label: "Manager" },
 ];
 

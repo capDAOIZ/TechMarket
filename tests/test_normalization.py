@@ -39,8 +39,12 @@ def test_extract_technologies_uses_boundaries_and_aliases() -> None:
 
 def test_classification_primarily_uses_title() -> None:
     assert classify_role("Senior Data Engineer", "React landing pages") == "data"
-    assert classify_seniority("Principal Platform Engineer") == "lead"
+    assert classify_seniority("Principal Platform Engineer") == "senior"
     assert classify_seniority("Junior Java Developer") == "junior"
+    assert classify_seniority("Solutions Architect") is None
+    assert classify_seniority("Senior Solutions Architect") == "senior"
+    assert classify_seniority("Lead Platform Engineer") == "lead"
+    assert classify_seniority("Head of Engineering") == "manager"
     assert classify_role("Senior Solutions Architect") == "software"
     assert classify_role("Director, Field Engineering") == "management"
     assert classify_role("Research Scientist, Interpretability") == "machine_learning"

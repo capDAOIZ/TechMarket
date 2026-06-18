@@ -23,7 +23,7 @@ function formatSalary(salary: JobDetail["salary"]): string {
 
 const seniorityLabel: Record<string, string> = {
   intern: "Intern", junior: "Junior", mid: "Mid-level",
-  senior: "Senior", lead: "Lead / Staff", unknown: "Not specified",
+  senior: "Senior", lead: "Lead", unknown: "Not specified",
 };
 
 const modalityLabel: Record<string, string> = {
