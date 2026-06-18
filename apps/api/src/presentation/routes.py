@@ -79,15 +79,34 @@ def get_job(job_id: int, session: DbSession) -> JobDetail:
 
 @router.get("/stats/summary", response_model=DashboardSummary, tags=["statistics"])
 def summary(session: DbSession) -> DashboardSummary:
-    return DashboardSummary(
-        total_jobs=session.scalar(
-            select(func.count(JobModel.id)).where(JobModel.is_active.is_(True))
+    total_jobs = (
+        session.scalar(select(func.count(JobModel.id)).where(JobModel.is_active.is_(True))) or 0
+    )
+    remote_jobs = (
+        session.scalar(
+            select(func.count(JobModel.id)).where(
+                JobModel.is_active.is_(True), JobModel.remote.is_(True)
+            )
         )
-        or 0,
+        or 0
+    )
+    salary_jobs = (
+        session.scalar(
+            select(func.count(JobModel.id)).where(
+                JobModel.is_active.is_(True), JobModel.salary_min.is_not(None)
+            )
+        )
+        or 0
+    )
+    return DashboardSummary(
+        total_jobs=total_jobs,
         total_companies=session.scalar(select(func.count(CompanyModel.id))) or 0,
         total_sources=session.scalar(select(func.count(SourceModel.id))) or 0,
         total_technologies=session.scalar(select(func.count(TechnologyModel.id))) or 0,
         latest_published_at=session.scalar(select(func.max(JobModel.published_at))),
+        remote_percentage=round(100 * remote_jobs / total_jobs, 2) if total_jobs else 0,
+        salary_coverage_percentage=round(100 * salary_jobs / total_jobs, 2) if total_jobs else 0,
+        last_ingestion_at=session.scalar(select(func.max(PipelineRunModel.finished_at))),
     )
 
 

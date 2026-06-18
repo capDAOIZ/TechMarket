@@ -11,10 +11,9 @@ const SENIORITY_OPTIONS: { value: Seniority | ""; label: string }[] = [
   { value: "", label: "All levels" },
   { value: "intern", label: "Intern" },
   { value: "junior", label: "Junior" },
-  { value: "mid", label: "Mid-level" },
   { value: "senior", label: "Senior" },
   { value: "lead", label: "Lead / Staff" },
-  { value: "unknown", label: "Unknown" },
+  { value: "manager", label: "Manager" },
 ];
 
 const MODALITY_OPTIONS: { value: Modality | ""; label: string }[] = [
@@ -22,7 +21,6 @@ const MODALITY_OPTIONS: { value: Modality | ""; label: string }[] = [
   { value: "remote", label: "Remote" },
   { value: "hybrid", label: "Hybrid" },
   { value: "onsite", label: "On-site" },
-  { value: "unknown", label: "Unknown" },
 ];
 
 const SOURCE_OPTIONS: { value: SourceName | ""; label: string }[] = [
@@ -30,13 +28,12 @@ const SOURCE_OPTIONS: { value: SourceName | ""; label: string }[] = [
   { value: "remotive", label: "Remotive" },
   { value: "greenhouse", label: "Greenhouse" },
   { value: "arbeitnow", label: "Arbeitnow" },
-  { value: "adzuna", label: "Adzuna" },
 ];
 
 const TECH_OPTIONS = [
-  "", "Python", "TypeScript", "JavaScript", "React", "Go", "Rust",
-  "Node.js", "Java", "Kubernetes", "AWS", "Docker", "PostgreSQL",
-  "Swift", "Kotlin", "GraphQL",
+  "", "Python", "JavaScript", "TypeScript", "React", "Node.js", "Java",
+  "Spring", "FastAPI", "Django", "PostgreSQL", "MySQL", "AWS", "Azure",
+  "GCP", "Docker", "Kubernetes", "Kafka", "Spark", "Airflow", "Terraform",
 ];
 
 /* ── Shared input classes ─────────────────────────────────────────────────── */

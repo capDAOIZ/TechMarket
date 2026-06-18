@@ -4,6 +4,7 @@ export type Seniority =
   | "mid"
   | "senior"
   | "lead"
+  | "manager"
   | "unknown";
 
 export type Modality =
@@ -85,4 +86,5 @@ export type JobsQueryParams = {
   page?: number;
   page_size?: number;
   sort?: string;
+  active?: boolean;
 };

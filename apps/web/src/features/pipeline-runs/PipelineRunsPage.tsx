@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { getPipelineRuns } from "../../shared/api/pipeline.api";
 import type { PipelineRun } from "../../shared/types/pipeline";
 import { PipelineRunsTable } from "./PipelineRunsTable";
@@ -10,7 +10,7 @@ export function PipelineRunsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -21,21 +21,23 @@ export function PipelineRunsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [load]);
 
   const success  = runs.filter((r) => r.status === "success").length;
+  const partial  = runs.filter((r) => r.status === "partial_success").length;
   const failed   = runs.filter((r) => r.status === "failed").length;
   const running  = runs.filter((r) => r.status === "running").length;
-  const inserted = runs.reduce((acc, r) => acc + r.insertedJobsCount, 0);
+  const loaded = runs.reduce((acc, r) => acc + r.loadedCount, 0);
 
   const kpis = [
     { label: "Total Runs",    value: runs.length,                  color: "text-zinc-100" },
     { label: "Successful",    value: success,                       color: "text-emerald-400" },
+    { label: "Partial",       value: partial,                       color: "text-amber-400" },
     { label: "Failed",        value: failed,                        color: "text-red-400" },
     { label: "Running",       value: running,                       color: "text-sky-400" },
-    { label: "Jobs Inserted", value: inserted.toLocaleString(),     color: "text-indigo-400" },
+    { label: "Jobs Loaded",   value: loaded.toLocaleString(),       color: "text-indigo-400" },
   ];
 
   return (
@@ -60,7 +62,7 @@ export function PipelineRunsPage() {
 
       {/* KPI strip */}
       {!loading && !error && (
-        <dl className="grid grid-cols-2 sm:grid-cols-5 divide-x divide-y divide-zinc-800 border border-zinc-800 rounded-xl overflow-hidden mb-4">
+        <dl className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 divide-x divide-y divide-zinc-800 border border-zinc-800 rounded-xl overflow-hidden mb-4">
           {kpis.map((kpi) => (
             <div key={kpi.label} className="flex flex-col gap-1 bg-zinc-900 px-4 py-3 hover:bg-zinc-800/60 transition-colors duration-150">
               <dt className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest">{kpi.label}</dt>

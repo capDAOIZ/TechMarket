@@ -7,7 +7,10 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://techjobs:techjobs@localhost:5432/techjobs"
     data_lake_root: Path = Path("data-lake")
-    cors_origins: str = "http://localhost:5173,http://localhost:3000"
+    cors_origins: str = (
+        "http://localhost:5173,http://127.0.0.1:5173,"
+        "http://localhost:3000,http://127.0.0.1:3000"
+    )
     log_level: str = "INFO"
     external_request_timeout_seconds: float = 30.0
     external_request_max_retries: int = 3

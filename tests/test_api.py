@@ -20,6 +20,7 @@ def test_jobs_pagination_filters_and_detail(
     assert body["page_size"] == 2
     assert body["total"] >= 2
     assert all("source_url" in item and "attribution" in item for item in body["items"])
+    assert all("quality_score" in item and "salary_min" in item for item in body["items"])
 
     job_id = body["items"][0]["id"]
     detail = client.get(f"/jobs/{job_id}")
@@ -33,5 +34,8 @@ def test_stats_preserve_null_bucket(client: TestClient, session: Session, tmp_pa
     response = client.get("/stats/seniority")
     assert response.status_code == 200
     assert any(bucket["value"] is None for bucket in response.json())
-    assert client.get("/stats/summary").json()["total_jobs"] == 7
+    summary = client.get("/stats/summary").json()
+    assert summary["total_jobs"] == 7
+    assert summary["remote_percentage"] > 0
+    assert summary["last_ingestion_at"] is not None
     assert client.get("/trends/technologies").status_code == 200

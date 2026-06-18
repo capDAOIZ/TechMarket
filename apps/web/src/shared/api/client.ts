@@ -1,9 +1,8 @@
 /**
  * Base API client.
- * When the FastAPI backend is ready, set VITE_API_URL in .env
- * and this client will forward all requests to the real API.
+ * VITE_API_URL can override the local FastAPI URL in deployed environments.
  */
-const BASE_URL = import.meta.env.VITE_API_URL ?? "";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
 export type ApiError = {
   message: string;
@@ -24,11 +23,12 @@ export async function apiFetch<T>(
     });
   }
 
-  const res = await fetch(url.toString());
+  const res = await fetch(url.toString(), { signal: AbortSignal.timeout(15_000) });
 
   if (!res.ok) {
+    const payload = await res.json().catch(() => null);
     const error: ApiError = {
-      message: `API error: ${res.status} ${res.statusText}`,
+      message: payload?.detail ?? `API error: ${res.status} ${res.statusText}`,
       status: res.status,
     };
     throw error;

@@ -40,13 +40,9 @@ export function JobsPage() {
         <p className="text-sm text-zinc-500 mt-0.5">Browse and filter tech job opportunities</p>
       </div>
 
-      {/* Mobile filters (collapsible) + Results */}
-      <JobsFilters params={params} onChange={handleParamsChange} onReset={handleReset} />
-
       {/* Desktop layout: sidebar + results */}
       <div className="md:grid md:grid-cols-[220px_1fr] md:gap-6 md:items-start">
-        {/* Desktop filters rendered inside JobsFilters as hidden md:block */}
-        <div className="hidden md:block">
+        <div>
           <JobsFilters params={params} onChange={handleParamsChange} onReset={handleReset} />
         </div>
 

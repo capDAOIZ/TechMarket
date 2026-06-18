@@ -1,12 +1,11 @@
 export type PipelineRun = {
   id: string;
-  source: string;
-  status: "success" | "failed" | "running";
+  sources: string[];
+  status: "success" | "partial_success" | "failed" | "running";
   startedAt: string;
   finishedAt: string | null;
-  rawJobsCount: number;
-  processedJobsCount: number;
-  insertedJobsCount: number;
-  duplicateJobsCount: number;
+  fetchedCount: number;
+  loadedCount: number;
+  discardedCount: number;
   errorMessage: string | null;
 };

@@ -31,6 +31,12 @@ class JobListItem(BaseModel):
     remote: bool | None
     technologies: list[str]
     published_at: datetime | None
+    fetched_at: datetime
+    salary_min: int | None
+    salary_max: int | None
+    salary_currency: str | None
+    salary_period: str | None
+    quality_score: float
     source_name: str
     source_url: str
     attribution: str
@@ -45,12 +51,6 @@ class JobDetail(JobListItem):
     location_raw: str | None
     country_code: str | None
     description: str | None
-    fetched_at: datetime
-    salary_min: int | None
-    salary_max: int | None
-    salary_currency: str | None
-    salary_period: str | None
-    quality_score: float
     duplicate_group_id: str | None
 
 
@@ -68,6 +68,9 @@ class DashboardSummary(BaseModel):
     total_sources: int
     total_technologies: int
     latest_published_at: datetime | None
+    remote_percentage: float
+    salary_coverage_percentage: float
+    last_ingestion_at: datetime | None
 
 
 class TechnologyStat(BaseModel):

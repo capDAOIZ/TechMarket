@@ -10,6 +10,7 @@ const navItems = [
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const dataMode = import.meta.env.VITE_USE_MOCKS === "true" ? "Mock mode" : "Live API";
 
   const getPageTitle = () => {
     if (location.pathname === "/") return "Dashboard";
@@ -69,7 +70,7 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="px-4 py-3 border-t border-zinc-800">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-            <p className="text-[11px] text-zinc-600">v1.0.0 · Mock mode</p>
+            <p className="text-[11px] text-zinc-600">v1.0.0 · {dataMode}</p>
           </div>
         </div>
       </aside>

@@ -16,6 +16,7 @@ El contenedor aplica la migración, carga un seed determinista y levanta:
 - API: <http://localhost:8000>
 - Swagger/OpenAPI: <http://localhost:8000/docs>
 - Health: <http://localhost:8000/health>
+- Frontend: <http://localhost:5173>
 
 Para detenerlo:
 
@@ -61,6 +62,9 @@ ruff check .
 ```
 
 La arquitectura, el modelo y el contrato para frontend están documentados en `docs/`.
+
+El frontend consume FastAPI por defecto. Para usar mocks explícitamente, configure
+`VITE_USE_MOCKS=true` dentro de `apps/web/.env.local`.
 
 ## Automatización y producción
 

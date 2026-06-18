@@ -4,12 +4,14 @@ import { format, parseISO, formatDistanceToNow } from "date-fns";
 /* ── Status badge ─────────────────────────────────────────────────────────── */
 const STATUS_CLS: Record<PipelineRun["status"], string> = {
   success: "bg-emerald-500/10 text-emerald-400 ring-emerald-500/20",
+  partial_success: "bg-amber-500/10 text-amber-400 ring-amber-500/20",
   failed:  "bg-red-500/10    text-red-400    ring-red-500/20",
   running: "bg-sky-500/10    text-sky-400    ring-sky-500/20",
 };
 
 const STATUS_LABEL: Record<PipelineRun["status"], string> = {
   success: "Success",
+  partial_success: "Partial",
   failed:  "Failed",
   running: "Running",
 };
@@ -71,14 +73,13 @@ export function PipelineRunsTable({ runs }: { runs: PipelineRun[] }) {
         <thead>
           <tr>
             <Th>Run ID</Th>
-            <Th>Source</Th>
+            <Th>Sources</Th>
             <Th>Status</Th>
             <Th>Started</Th>
             <Th>Duration</Th>
-            <Th>Raw</Th>
-            <Th>Processed</Th>
-            <Th>Inserted</Th>
-            <Th>Dupes</Th>
+            <Th>Fetched</Th>
+            <Th>Loaded</Th>
+            <Th>Discarded</Th>
             <Th>Error</Th>
           </tr>
         </thead>
@@ -89,8 +90,8 @@ export function PipelineRunsTable({ runs }: { runs: PipelineRun[] }) {
                 <code className="text-[10px] text-indigo-400/80">{run.id.slice(0, 8)}…</code>
               </Td>
               <Td>
-                <span className={`text-xs font-medium ${SOURCE_COLOR[run.source] ?? "text-zinc-400"}`}>
-                  {run.source}
+                <span className={`text-xs font-medium ${SOURCE_COLOR[run.sources[0]] ?? "text-zinc-400"}`}>
+                  {run.sources.join(", ")}
                 </span>
               </Td>
               <Td>
@@ -106,14 +107,13 @@ export function PipelineRunsTable({ runs }: { runs: PipelineRun[] }) {
               </Td>
               <Td className="tabular-nums">{duration(run.startedAt, run.finishedAt)}</Td>
               <Td className="tabular-nums font-semibold text-zinc-200">
-                {run.rawJobsCount.toLocaleString()}
+                {run.fetchedCount.toLocaleString()}
               </Td>
-              <Td className="tabular-nums">{run.processedJobsCount.toLocaleString()}</Td>
               <Td className="tabular-nums font-semibold text-emerald-400">
-                {run.insertedJobsCount.toLocaleString()}
+                {run.loadedCount.toLocaleString()}
               </Td>
-              <Td className="tabular-nums text-zinc-600">
-                {run.duplicateJobsCount.toLocaleString()}
+              <Td className="tabular-nums text-amber-400">
+                {run.discardedCount.toLocaleString()}
               </Td>
               <Td>
                 {run.errorMessage ? (

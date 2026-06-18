@@ -1,27 +1,11 @@
-export type Role =
-  | "backend"
-  | "frontend"
-  | "fullstack"
-  | "data"
-  | "devops"
-  | "mobile"
-  | "qa"
-  | "security"
-  | "machine_learning"
-  | "management"
-  | "software";
-
-export type Seniority = "intern" | "junior" | "senior" | "lead" | "manager";
-export type Modality = "remote" | "hybrid" | "onsite";
-
-export interface JobListItem {
+export type ApiJobListItem = {
   id: number;
   title: string;
   company_name: string;
   location: string | null;
-  role: Role | null;
-  seniority: Seniority | null;
-  modality: Modality | null;
+  role: string | null;
+  seniority: string | null;
+  modality: string | null;
   remote: boolean | null;
   technologies: string[];
   published_at: string | null;
@@ -38,25 +22,25 @@ export interface JobListItem {
   last_seen_at: string;
   is_active: boolean;
   closed_at: string | null;
-}
+};
 
-export interface PaginatedJobsResponse {
-  items: JobListItem[];
-  page: number;
-  page_size: number;
-  total: number;
-  total_pages: number;
-}
-
-export interface JobDetail extends JobListItem {
+export type ApiJobDetail = ApiJobListItem & {
   external_id: string;
   location_raw: string | null;
   country_code: string | null;
   description: string | null;
   duplicate_group_id: string | null;
-}
+};
 
-export interface DashboardSummary {
+export type ApiPaginatedJobsResponse = {
+  items: ApiJobListItem[];
+  page: number;
+  page_size: number;
+  total: number;
+  total_pages: number;
+};
+
+export type ApiDashboardSummary = {
   total_jobs: number;
   total_companies: number;
   total_sources: number;
@@ -65,36 +49,33 @@ export interface DashboardSummary {
   remote_percentage: number;
   salary_coverage_percentage: number;
   last_ingestion_at: string | null;
-}
+};
 
-export interface TechnologyStat {
+export type ApiTechnologyStat = {
   technology: string;
   count: number;
   share: number | null;
-}
+};
 
-export interface BucketStat {
-  value: string | null;
-  count: number;
-}
+export type ApiBucketStat = { value: string | null; count: number };
 
-export interface TechnologyTrendPoint {
+export type ApiTechnologyTrendPoint = {
   week_start: string;
   technology: string;
   count: number;
   share: number | null;
-}
+};
 
-export interface PipelineSourceRun {
+export type ApiPipelineSourceRun = {
   source_name: string;
   status: "running" | "success" | "failed";
   fetched_count: number;
   started_at: string;
   finished_at: string | null;
   error_message: string | null;
-}
+};
 
-export interface PipelineRun {
+export type ApiPipelineRun = {
   id: number;
   status: "running" | "success" | "partial_success" | "failed";
   requested_sources: string[];
@@ -104,13 +85,6 @@ export interface PipelineRun {
   loaded_count: number;
   discarded_count: number;
   error_message: string | null;
-  source_runs: PipelineSourceRun[];
-}
+  source_runs: ApiPipelineSourceRun[];
+};
 
-export interface SourceResponse {
-  id: number;
-  name: string;
-  attribution: string;
-  homepage_url: string;
-  active: boolean;
-}
