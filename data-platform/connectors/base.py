@@ -10,7 +10,7 @@ from src.config import settings
 def parse_datetime(value: str | int | float | None) -> datetime | None:
     if not value:
         return None
-    if isinstance(value, (int, float)):
+    if isinstance(value, int | float):
         return datetime.fromtimestamp(value, tz=UTC)
     try:
         parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
