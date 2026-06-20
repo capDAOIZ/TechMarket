@@ -20,7 +20,7 @@ CORS admite por defecto `http://localhost:5173` y `http://localhost:3000`. Se pu
 
 - `role`: `backend | frontend | fullstack | data | devops | mobile | qa | security |
   machine_learning | management | software | null`
-- `seniority`: `intern | junior | senior | lead | manager | null`
+- `seniority`: `intern | junior | mid | senior | lead | manager | null`
 - `modality`: `remote | hybrid | onsite | null`
 - `sort`: `newest | oldest | quality`
 - `pipeline status`: `running | success | partial_success | failed`
@@ -56,6 +56,11 @@ consultar ofertas caducadas.
       "location": "Madrid, Spain",
       "role": "backend",
       "seniority": null,
+      "experience_min_years": null,
+      "experience_max_years": null,
+      "seniority_source": null,
+      "seniority_confidence": null,
+      "seniority_reason": null,
       "modality": "onsite",
       "remote": false,
       "technologies": ["AWS", "Docker", "FastAPI", "PostgreSQL", "Python"],
@@ -83,6 +88,11 @@ consultar ofertas caducadas.
 ```
 
 Los timestamps exactos y los IDs dependen del momento y del estado del volumen local.
+
+La clasificación de seniority prioriza marcadores explícitos del título. Si el título no indica
+nivel, usa únicamente años de experiencia cuantificados: `0-2 = junior`, `3-4 = mid` y `5+ =
+senior`. Los requisitos contradictorios o rangos que cruzan categorías quedan en `null`. Los campos
+`seniority_source`, `seniority_confidence` y `seniority_reason` permiten auditar cada decisión.
 
 ## Fuentes y atribuciones
 

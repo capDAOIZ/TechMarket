@@ -135,6 +135,11 @@ def upsert_job(session: Session, job: NormalizedJob) -> JobModel:
     model.salary_period = job.salary_period
     model.role = job.role
     model.seniority = job.seniority
+    model.experience_min_years = job.experience_min_years
+    model.experience_max_years = job.experience_max_years
+    model.seniority_source = job.seniority_source
+    model.seniority_confidence = job.seniority_confidence
+    model.seniority_reason = job.seniority_reason
     model.quality_score = job.quality_score
     model.duplicate_group_id = job.duplicate_group_id
     model.last_seen_at = job.fetched_at

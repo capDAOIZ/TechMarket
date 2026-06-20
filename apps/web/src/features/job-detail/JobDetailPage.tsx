@@ -23,8 +23,15 @@ function formatSalary(salary: JobDetail["salary"]): string {
 
 const seniorityLabel: Record<string, string> = {
   intern: "Intern", junior: "Junior", mid: "Mid-level",
-  senior: "Senior", lead: "Lead", unknown: "Not specified",
+  senior: "Senior", lead: "Lead", manager: "Manager", unknown: "Not specified",
 };
+
+function formatExperience(job: JobDetail): string {
+  const min = job.experienceMinYears;
+  const max = job.experienceMaxYears;
+  if (min === null) return "Not quantified";
+  return max !== null ? `${min}–${max} years` : `${min}+ years`;
+}
 
 const modalityLabel: Record<string, string> = {
   remote: "Remote", hybrid: "Hybrid", onsite: "On-site", unknown: "Not specified",
@@ -132,6 +139,12 @@ export function JobDetailPage() {
           <MetaItem label="Modality">{modalityLabel[job.modality] ?? job.modality}</MetaItem>
           <MetaItem label="Seniority">{seniorityLabel[job.seniority] ?? job.seniority}</MetaItem>
           <MetaItem label="Role">{job.role ?? "Not specified"}</MetaItem>
+          <MetaItem label="Required experience">{formatExperience(job)}</MetaItem>
+          <MetaItem label="Classification">
+            {job.senioritySource
+              ? `${job.senioritySource} · ${Math.round((job.seniorityConfidence ?? 0) * 100)}%`
+              : "No reliable evidence"}
+          </MetaItem>
           <MetaItem label="Salary">
             <span className={hasSalary ? "text-emerald-400" : "text-zinc-600"}>
               {formatSalary(job.salary)}

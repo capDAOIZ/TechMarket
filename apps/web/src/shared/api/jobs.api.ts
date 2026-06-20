@@ -18,7 +18,7 @@ import type {
 const USE_MOCKS = import.meta.env.VITE_USE_MOCKS === "true";
 
 function toSeniority(value: string | null): Seniority {
-  const allowed: Seniority[] = ["intern", "junior", "senior", "lead", "manager"];
+  const allowed: Seniority[] = ["intern", "junior", "mid", "senior", "lead", "manager"];
   return allowed.includes(value as Seniority) ? (value as Seniority) : "unknown";
 }
 
@@ -52,6 +52,11 @@ function toJobListItem(job: ApiJobListItem): JobListItem {
     },
     role: job.role,
     seniority: toSeniority(job.seniority),
+    experienceMinYears: job.experience_min_years,
+    experienceMaxYears: job.experience_max_years,
+    senioritySource: job.seniority_source,
+    seniorityConfidence: job.seniority_confidence,
+    seniorityReason: job.seniority_reason,
     modality: toModality(job.modality),
     technologies: job.technologies,
     salary: {

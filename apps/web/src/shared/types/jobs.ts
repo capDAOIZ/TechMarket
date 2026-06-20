@@ -38,6 +38,11 @@ export type JobListItem = {
 
   role: string | null;
   seniority: Seniority;
+  experienceMinYears?: number | null;
+  experienceMaxYears?: number | null;
+  senioritySource?: "title" | "description" | null;
+  seniorityConfidence?: number | null;
+  seniorityReason?: string | null;
   modality: Modality;
   technologies: string[];
 

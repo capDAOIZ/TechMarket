@@ -2,6 +2,7 @@ import hashlib
 import html
 import re
 import unicodedata
+from dataclasses import dataclass
 from html.parser import HTMLParser
 
 from schemas.raw_job import RawJob
@@ -148,16 +149,139 @@ def extract_technologies(title: str, description: str | None, tags: list[str]) -
     return found
 
 
-def classify_seniority(title: str) -> str | None:
-    value = title.lower()
-    patterns = (
-        ("intern", r"\b(intern|internship|trainee)\b"),
-        ("junior", r"\b(junior|jr\.?|entry[ -]level|graduate)\b"),
-        ("manager", r"\b(manager|director|head|vp|vice president)\b"),
-        ("lead", r"\blead\b"),
-        ("senior", r"\b(senior|sr\.?|staff|principal)\b"),
+@dataclass(frozen=True, slots=True)
+class SeniorityClassification:
+    level: str | None
+    experience_min_years: int | None
+    experience_max_years: int | None
+    source: str | None
+    confidence: float | None
+    reason: str | None
+
+
+TITLE_SENIORITY_PATTERNS = (
+    ("manager", r"\b(vice president|vp|director|head|engineering manager|manager)\b"),
+    ("lead", r"\b(tech(?:nical)? lead|team lead|lead|lider tecnico)\b"),
+    ("senior", r"(?<!semi-)(?<!semi )\b(senior|sr\.?|staff|principal)\b"),
+    ("mid", r"\b(mid(?:dle)?[ -]?level|mid|intermediate|semi[ -]?senior|ssr\.?)\b"),
+    ("junior", r"\b(junior|jr\.?|entry[ -]?level|graduate)\b"),
+    ("intern", r"\b(intern|internship|trainee|practicas|becari[oa])\b"),
+)
+
+EXPERIENCE_PATTERNS = (
+    re.compile(
+        r"(?P<min>\d{1,2})\s*(?:[-–—]|to|a)\s*(?P<max>\d{1,2})\s*"
+        r"(?:\+\s*)?(?:years?|yrs?|anos?|jahre[n]?)\b[^.!?;\n]{0,50}"
+        r"(?:experience|experiencia|erfahrung)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:minimum|minimo|al menos|at least|mindestens|more than|over)?\s*"
+        r"(?P<min>\d{1,2})\s*\+?\s*(?:years?|yrs?|anos?|jahre[n]?)\b[^.!?;\n]{0,50}"
+        r"(?:experience|experiencia|erfahrung)",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:experience|experiencia|erfahrung)[^.!?;\n]{0,50}?"
+        r"(?P<min>\d{1,2})\s*(?:[-–—]|to|a)\s*(?P<max>\d{1,2})?\s*"
+        r"(?:\+\s*)?(?:years?|yrs?|anos?|jahre[n]?)\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"(?:experience|experiencia|erfahrung)[^.!?;\n]{0,50}?"
+        r"(?P<min>\d{1,2})\s*\+?\s*(?:years?|yrs?|anos?|jahre[n]?)\b",
+        re.IGNORECASE,
+    ),
+)
+
+
+def _ascii_lower(value: str) -> str:
+    return unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode().lower()
+
+
+def _experience_band(years: int) -> str:
+    if years <= 2:
+        return "junior"
+    if years <= 4:
+        return "mid"
+    return "senior"
+
+
+def _extract_experience_requirements(description: str | None) -> list[tuple[int, int | None, str]]:
+    if not description:
+        return []
+    text = _ascii_lower(description)
+    matches: dict[tuple[int, int | None, str], None] = {}
+    occupied: list[tuple[int, int]] = []
+    for pattern in EXPERIENCE_PATTERNS:
+        for match in pattern.finditer(text):
+            if any(match.start() < end and match.end() > start for start, end in occupied):
+                continue
+            minimum = int(match.group("min"))
+            maximum_group = match.groupdict().get("max")
+            maximum = int(maximum_group) if maximum_group else None
+            if minimum > 20 or maximum is not None and (maximum > 20 or maximum < minimum):
+                continue
+            phrase = re.sub(r"\s+", " ", match.group(0)).strip()
+            matches[(minimum, maximum, phrase)] = None
+            occupied.append((match.start(), match.end()))
+    return list(matches)
+
+
+def classify_seniority_details(
+    title: str, description: str | None = None
+) -> SeniorityClassification:
+    normalized_title = _ascii_lower(title)
+    requirements = _extract_experience_requirements(description)
+    experience_min = max((minimum for minimum, _, _ in requirements), default=None)
+    explicit_maxima = [maximum for _, maximum, _ in requirements if maximum is not None]
+    experience_max = max(explicit_maxima, default=None)
+
+    for level, pattern in TITLE_SENIORITY_PATTERNS:
+        match = re.search(pattern, normalized_title)
+        if match:
+            return SeniorityClassification(
+                level=level,
+                experience_min_years=experience_min,
+                experience_max_years=experience_max,
+                source="title",
+                confidence=1.0,
+                reason=f'Title contains "{match.group(0)}".',
+            )
+
+    if not requirements:
+        return SeniorityClassification(None, None, None, None, None, None)
+
+    bands: set[str] = set()
+    for minimum, maximum, _ in requirements:
+        bands.add(_experience_band(minimum))
+        if maximum is not None:
+            bands.add(_experience_band(maximum))
+    if len(bands) != 1:
+        values = ", ".join(phrase for _, _, phrase in requirements[:3])
+        return SeniorityClassification(
+            None,
+            experience_min,
+            experience_max,
+            "description",
+            0.4,
+            f"Conflicting or cross-band experience requirements: {values}.",
+        )
+
+    level = bands.pop()
+    values = ", ".join(phrase for _, _, phrase in requirements[:3])
+    return SeniorityClassification(
+        level,
+        experience_min,
+        experience_max,
+        "description",
+        0.85 if len(requirements) == 1 else 0.8,
+        f"Experience requirement maps to {level}: {values}.",
     )
-    return next((label for label, pattern in patterns if re.search(pattern, value)), None)
+
+
+def classify_seniority(title: str, description: str | None = None) -> str | None:
+    return classify_seniority_details(title, description).level
 
 
 def classify_role(title: str, description: str | None = None) -> str | None:
@@ -242,6 +366,7 @@ def normalize_job(raw: RawJob, raw_path: str | None = None) -> NormalizedJob | N
     location_name, country_code = normalize_location(raw.location_raw)
     modality, remote = normalize_modality(raw.title, raw.location_raw, description, raw.remote_hint)
     salary_min, salary_max, salary_currency, salary_period = normalize_salary(raw.salary_raw)
+    seniority = classify_seniority_details(raw.title, description)
     return NormalizedJob(
         source_name=raw.source_name,
         external_id=raw.external_id,
@@ -261,7 +386,12 @@ def normalize_job(raw: RawJob, raw_path: str | None = None) -> NormalizedJob | N
         salary_currency=salary_currency,
         salary_period=salary_period,
         role=role,
-        seniority=classify_seniority(raw.title),
+        seniority=seniority.level,
+        experience_min_years=seniority.experience_min_years,
+        experience_max_years=seniority.experience_max_years,
+        seniority_source=seniority.source,
+        seniority_confidence=seniority.confidence,
+        seniority_reason=seniority.reason,
         technologies=technologies,
         quality_score=calculate_quality_score(raw, description, technologies),
         duplicate_group_id=detect_duplicate_group(raw.title, raw.company_name, location_name),

@@ -11,7 +11,7 @@ export type Role =
   | "management"
   | "software";
 
-export type Seniority = "intern" | "junior" | "senior" | "lead" | "manager";
+export type Seniority = "intern" | "junior" | "mid" | "senior" | "lead" | "manager";
 export type Modality = "remote" | "hybrid" | "onsite";
 
 export interface JobListItem {
@@ -21,6 +21,11 @@ export interface JobListItem {
   location: string | null;
   role: Role | null;
   seniority: Seniority | null;
+  experience_min_years: number | null;
+  experience_max_years: number | null;
+  seniority_source: "title" | "description" | null;
+  seniority_confidence: number | null;
+  seniority_reason: string | null;
   modality: Modality | null;
   remote: boolean | null;
   technologies: string[];

@@ -5,6 +5,11 @@ export type ApiJobListItem = {
   location: string | null;
   role: string | null;
   seniority: string | null;
+  experience_min_years: number | null;
+  experience_max_years: number | null;
+  seniority_source: "title" | "description" | null;
+  seniority_confidence: number | null;
+  seniority_reason: string | null;
   modality: string | null;
   remote: boolean | null;
   technologies: string[];
@@ -87,4 +92,3 @@ export type ApiPipelineRun = {
   error_message: string | null;
   source_runs: ApiPipelineSourceRun[];
 };
-

@@ -27,7 +27,11 @@ def make_job(title: str = "Backend Engineer") -> NormalizedJob:
         salary_currency=None,
         salary_period=None,
         role="backend",
-        seniority=None,
+        seniority="mid",
+        experience_min_years=3,
+        seniority_source="description",
+        seniority_confidence=0.85,
+        seniority_reason="Experience requirement maps to mid.",
         technologies=["Python", "FastAPI"],
         quality_score=0.9,
     )
@@ -40,6 +44,10 @@ def test_upsert_does_not_duplicate_source_external_id(session: Session) -> None:
     assert first.id == second.id
     assert session.scalar(select(func.count(JobModel.id))) == 1
     assert session.scalar(select(JobModel.title)) == "Updated Backend Engineer"
+    stored = session.scalar(select(JobModel))
+    assert stored is not None
+    assert stored.experience_min_years == 3
+    assert stored.seniority_source == "description"
 
 
 def test_missing_job_is_closed_and_reappearing_job_is_reactivated(session: Session) -> None:

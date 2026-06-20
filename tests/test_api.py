@@ -21,6 +21,7 @@ def test_jobs_pagination_filters_and_detail(
     assert body["total"] >= 2
     assert all("source_url" in item and "attribution" in item for item in body["items"])
     assert all("quality_score" in item and "salary_min" in item for item in body["items"])
+    assert all("seniority_source" in item and "seniority_reason" in item for item in body["items"])
 
     job_id = body["items"][0]["id"]
     detail = client.get(f"/jobs/{job_id}")

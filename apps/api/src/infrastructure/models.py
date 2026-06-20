@@ -153,6 +153,11 @@ class JobModel(Base):
     salary_period: Mapped[str | None] = mapped_column(String(20))
     role: Mapped[str | None] = mapped_column(String(50))
     seniority: Mapped[str | None] = mapped_column(String(50))
+    experience_min_years: Mapped[int | None] = mapped_column(Integer)
+    experience_max_years: Mapped[int | None] = mapped_column(Integer)
+    seniority_source: Mapped[str | None] = mapped_column(String(30))
+    seniority_confidence: Mapped[float | None] = mapped_column(Float)
+    seniority_reason: Mapped[str | None] = mapped_column(String(500))
     quality_score: Mapped[float] = mapped_column(Float, nullable=False, default=0)
     duplicate_group_id: Mapped[str | None] = mapped_column(String(64), index=True)
     first_seen_at: Mapped[datetime] = mapped_column(

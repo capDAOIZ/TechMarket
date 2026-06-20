@@ -12,7 +12,19 @@ sys.path.insert(0, str(PROJECT_ROOT / "data-platform"))
 from src.config import settings  # noqa: E402
 from src.infrastructure.database import SessionLocal  # noqa: E402
 from src.infrastructure.models import JobModel  # noqa: E402
-from transformations.normalization import classify_seniority  # noqa: E402
+from transformations.normalization import classify_seniority_details  # noqa: E402
+
+
+def classification_values(title: str, description: str | None) -> dict[str, object]:
+    result = classify_seniority_details(title, description)
+    return {
+        "seniority": result.level,
+        "experience_min_years": result.experience_min_years,
+        "experience_max_years": result.experience_max_years,
+        "seniority_source": result.source,
+        "seniority_confidence": result.confidence,
+        "seniority_reason": result.reason,
+    }
 
 
 def update_processed_files(root: Path) -> tuple[int, int]:
@@ -22,9 +34,9 @@ def update_processed_files(root: Path) -> tuple[int, int]:
         records = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
         file_changed = False
         for record in records:
-            seniority = classify_seniority(record["title"])
-            if record.get("seniority") != seniority:
-                record["seniority"] = seniority
+            values = classification_values(record["title"], record.get("description"))
+            if any(record.get(key) != value for key, value in values.items()):
+                record.update(values)
                 changed_records += 1
                 file_changed = True
         if file_changed:
@@ -41,9 +53,10 @@ def main() -> int:
     changed_jobs = 0
     with SessionLocal() as session:
         for job in session.scalars(select(JobModel)):
-            seniority = classify_seniority(job.title)
-            if job.seniority != seniority:
-                job.seniority = seniority
+            values = classification_values(job.title, job.description)
+            if any(getattr(job, key) != value for key, value in values.items()):
+                for key, value in values.items():
+                    setattr(job, key, value)
                 changed_jobs += 1
         session.commit()
 

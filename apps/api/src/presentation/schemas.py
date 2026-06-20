@@ -16,7 +16,7 @@ Role = Literal[
     "management",
     "software",
 ]
-Seniority = Literal["intern", "junior", "senior", "lead", "manager"]
+Seniority = Literal["intern", "junior", "mid", "senior", "lead", "manager"]
 Modality = Literal["remote", "hybrid", "onsite"]
 
 
@@ -27,6 +27,11 @@ class JobListItem(BaseModel):
     location: str | None
     role: Role | None
     seniority: Seniority | None
+    experience_min_years: int | None
+    experience_max_years: int | None
+    seniority_source: Literal["title", "description"] | None
+    seniority_confidence: float | None
+    seniority_reason: str | None
     modality: Modality | None
     remote: bool | None
     technologies: list[str]

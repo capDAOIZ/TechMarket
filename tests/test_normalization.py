@@ -4,6 +4,7 @@ from schemas.raw_job import RawJob
 from transformations.normalization import (
     classify_role,
     classify_seniority,
+    classify_seniority_details,
     clean_description,
     extract_technologies,
     normalize_job,
@@ -48,6 +49,50 @@ def test_classification_primarily_uses_title() -> None:
     assert classify_role("Senior Solutions Architect") == "software"
     assert classify_role("Director, Field Engineering") == "management"
     assert classify_role("Research Scientist, Interpretability") == "machine_learning"
+
+
+def test_classification_recognizes_mid_level_titles() -> None:
+    assert classify_seniority("Intermediate Backend Engineer") == "mid"
+    assert classify_seniority("Software Engineer (Mid Level)") == "mid"
+    assert classify_seniority("Semi-Senior Python Developer") == "mid"
+
+
+def test_classification_uses_quantified_experience_without_title_level() -> None:
+    junior = classify_seniority_details(
+        "Software Engineer", "Candidates need 2+ years of professional experience."
+    )
+    mid = classify_seniority_details(
+        "Backend Engineer", "At least 3 years of relevant experience are required."
+    )
+    senior = classify_seniority_details(
+        "Platform Engineer", "You have 5+ years of software engineering experience."
+    )
+
+    assert (junior.level, junior.source, junior.experience_min_years) == (
+        "junior",
+        "description",
+        2,
+    )
+    assert mid.level == "mid"
+    assert senior.level == "senior"
+
+
+def test_title_wins_and_ambiguous_experience_stays_unclassified() -> None:
+    titled = classify_seniority_details(
+        "Junior Developer", "Requires 5+ years of professional experience."
+    )
+    ambiguous = classify_seniority_details(
+        "Software Developer", "Requires 2-5 years of professional experience."
+    )
+    generic = classify_seniority_details(
+        "Software Developer", "Previous professional experience is required."
+    )
+
+    assert (titled.level, titled.source, titled.confidence) == ("junior", "title", 1.0)
+    assert ambiguous.level is None
+    assert ambiguous.confidence == 0.4
+    assert generic.level is None
+    assert generic.source is None
 
 
 def test_non_technology_job_is_rejected() -> None:
