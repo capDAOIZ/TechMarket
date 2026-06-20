@@ -1,4 +1,5 @@
 import httpx
+from connectors.adzuna import AdzunaConnector
 from connectors.arbeitnow import ArbeitnowConnector
 from connectors.base import request_with_retry
 from connectors.greenhouse import GreenhouseConnector
@@ -11,6 +12,36 @@ def mock_client(payload: dict) -> httpx.Client:
         return httpx.Response(200, json=payload, request=request)
 
     return httpx.Client(transport=httpx.MockTransport(handler))
+
+
+def test_adzuna_mapping_uses_explicit_salary() -> None:
+    payload = {
+        "results": [
+            {
+                "id": "adz-7",
+                "redirect_url": "https://www.adzuna.es/details/7",
+                "title": "Python Engineer",
+                "company": {"display_name": "Empresa Tech"},
+                "location": {"display_name": "Madrid"},
+                "description": "Python, FastAPI and PostgreSQL",
+                "created": "2026-01-02T10:00:00Z",
+                "salary_min": 35000.0,
+                "salary_max": 45000.0,
+                "category": {"label": "IT Jobs"},
+                "contract_type": "permanent",
+                "contract_time": "full_time",
+            }
+        ]
+    }
+    job = AdzunaConnector(
+        mock_client(payload), app_id="app", app_key="key", country="es"
+    ).fetch(limit=1)[0]
+    assert job.source_name == "adzuna"
+    assert job.external_id == "adz-7"
+    assert job.company_name == "Empresa Tech"
+    assert job.location_raw == "Madrid, Spain"
+    assert job.salary_raw == "EUR 35000-45000 per year"
+    assert job.tags == ["IT Jobs", "permanent", "full_time"]
 
 
 def test_arbeitnow_mapping() -> None:

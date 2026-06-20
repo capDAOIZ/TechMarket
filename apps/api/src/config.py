@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     external_request_max_retries: int = 3
     external_request_backoff_seconds: float = 1.0
     external_request_delay_seconds: float = 0.1
+    adzuna_app_id: str | None = None
+    adzuna_app_key: str | None = None
+    adzuna_country: str = "es"
+    adzuna_category: str = "it-jobs"
+    adzuna_default_limit: int = 100
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 

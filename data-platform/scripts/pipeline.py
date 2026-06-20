@@ -2,6 +2,7 @@ import logging
 from datetime import UTC, datetime
 from pathlib import Path
 
+from connectors.adzuna import AdzunaConnector
 from connectors.arbeitnow import ArbeitnowConnector
 from connectors.base import BaseJobConnector
 from connectors.greenhouse import GreenhouseConnector
@@ -27,6 +28,7 @@ from transformations.storage import write_curated, write_processed, write_raw
 logger = logging.getLogger(__name__)
 
 CONNECTOR_FACTORIES: dict[str, type[BaseJobConnector]] = {
+    "adzuna": AdzunaConnector,
     "arbeitnow": ArbeitnowConnector,
     "remotive": RemotiveConnector,
     "greenhouse": GreenhouseConnector,

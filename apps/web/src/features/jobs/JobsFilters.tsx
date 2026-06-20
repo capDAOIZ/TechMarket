@@ -28,6 +28,7 @@ const SOURCE_OPTIONS: { value: SourceName | ""; label: string }[] = [
   { value: "remotive", label: "Remotive" },
   { value: "greenhouse", label: "Greenhouse" },
   { value: "arbeitnow", label: "Arbeitnow" },
+  { value: "adzuna", label: "Adzuna" },
 ];
 
 const TECH_OPTIONS = [

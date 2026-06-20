@@ -29,7 +29,7 @@ function toModality(value: string | null): Modality {
 }
 
 function toSource(value: string): SourceName {
-  return value === "arbeitnow" || value === "remotive" || value === "greenhouse"
+  return value === "arbeitnow" || value === "remotive" || value === "greenhouse" || value === "adzuna"
     ? value
     : "arbeitnow";
 }

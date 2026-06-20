@@ -39,7 +39,7 @@ Con el entorno Python instalado y `DATABASE_URL` apuntando a PostgreSQL:
 
 ```bash
 python data-platform/scripts/run_pipeline.py --seed
-python data-platform/scripts/run_pipeline.py --sources arbeitnow remotive greenhouse --limit 50
+python data-platform/scripts/run_pipeline.py --sources arbeitnow remotive greenhouse adzuna --limit 50
 ```
 
 Reconstrucción de una base vacía desde todos los archivos processed:

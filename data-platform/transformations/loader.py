@@ -18,6 +18,7 @@ from src.infrastructure.models import (
 )
 
 SOURCE_METADATA = {
+    "adzuna": ("Jobs provided by Adzuna", "https://www.adzuna.es/"),
     "arbeitnow": ("Jobs provided by Arbeitnow", "https://www.arbeitnow.com/"),
     "remotive": ("Jobs provided by Remotive", "https://remotive.com/"),
     "greenhouse": ("Jobs provided by Greenhouse job boards", "https://www.greenhouse.com/"),

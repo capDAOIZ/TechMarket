@@ -29,6 +29,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    logging.getLogger("httpx").setLevel(logging.WARNING)
     with SessionLocal() as session:
         run = run_pipeline(session, args.sources, args.limit, seed=args.seed)
     print(

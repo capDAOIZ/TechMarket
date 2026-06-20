@@ -7,7 +7,7 @@ Fecha: 2026-06-18. Entorno: Docker local, PostgreSQL 16 y APIs públicas reales.
 Comando:
 
 ```bash
-python data-platform/scripts/run_pipeline.py --sources arbeitnow remotive greenhouse --limit 50
+python data-platform/scripts/run_pipeline.py --sources arbeitnow remotive greenhouse adzuna --limit 50
 ```
 
 Dos ejecuciones consecutivas descargaron 132 registros por ejecución: Arbeitnow 50, Remotive 32 y
@@ -36,4 +36,3 @@ un fallo del parser.
 
 Los directorios raw, processed y curated contienen archivos de las ejecuciones. `raw_jobs_index`
 deduplica hashes de contenido, mientras raw mantiene capturas inmutables con nombres únicos.
-

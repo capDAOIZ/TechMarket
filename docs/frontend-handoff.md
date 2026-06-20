@@ -91,3 +91,4 @@ Los timestamps exactos y los IDs dependen del momento y del estado del volumen l
 | Arbeitnow | Jobs provided by Arbeitnow | <https://www.arbeitnow.com/> |
 | Remotive | Jobs provided by Remotive | <https://remotive.com/> |
 | Greenhouse | Jobs provided by Greenhouse job boards | <https://www.greenhouse.com/> |
+| Adzuna | Jobs provided by Adzuna | <https://www.adzuna.es/> |
